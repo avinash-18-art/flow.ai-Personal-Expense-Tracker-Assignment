@@ -1,63 +1,95 @@
 # Personal Expense Tracker
 
-This project is a RESTful API for managing personal financial transactions such as income and expenses.
+A RESTful API for managing personal financial records where users can record their income, expenses, view transaction history, and generate reports.
 
-## Setup
+## Features
 
-1. Clone the repository:
+- CRUD operations for managing financial transactions (income and expense).
+- User authentication (JWT) for securing transactions.
+- Pagination for transaction listing.
+- Monthly spending report by category.
+- Error handling for invalid inputs and transaction IDs.
+- Optional SQLite or MongoDB as the database.
 
-   ```bash
-   git clone https://github.com/your-repository/expense-tracker.git
-   cd expense-tracker
+## Tools and Technologies:
 
-   ```
-
-2. Install dependencies: npm install
-3. Run the application: npm start
-4. The server should now be running on http://localhost:3000.
+- Node.js
+- Express.js
+- SQLite (or MongoDB for NoSQL)
+- Sequelize ORM
+- JWT Authentication
+- Postman for testing API
 
 ## Project Structure:
 
-expense-tracker/ │ ├── node_modules/ # Auto-generated after running npm install ├── routes/ # Contains all route definitions │ └── transactionRoutes.js ├── database/ # Contains database connection and initialization │ └── database.js ├── .gitignore # To exclude node_modules and other files from Git ├── package.json # Project dependencies and scripts ├── package-lock.json # Auto-generated for locked versions of dependencies ├── README.md # Project documentation and setup guide ├── server.js # Main entry point of the application └── expenses.db # SQLite database file (created automatically)
+personal-expense-tracker/ │ ├── config/ │ └── auth.js │ └── db.js │ ├── controllers/ │ └── transactions.js │ └── users.js │ ├── models/ │ └── transaction.js │ └── user.js │ ├── routes/ │ └── transactions.js │ └── users.js │ ├── middleware/ │ └── errorHandler.js │ ├── .env ├── app.js ├── package.json ├── README.md └── migrations/ (if using SQLite with Sequelize)
+
+## Setup Instructions:
+
+1. Clone the repository: git clone https://github.com/avinash-18-art/flow.ai-Personal-Expense-Tracker-Assignment.git
+
+2. Navigate to the project directory: cd personal-expense-tracker
+
+3. Install dependencies: npm install
+
+4. Set up environment variables: Create a .env file in the root of the project and add the following: JWT_SECRET=your_jwt_secret
+
+5. Set up the database: For SQLite: The database will automatically be created using SQLite when you start the server. Sequelize will handle the creation of the necessary tables (Users and Transactions).
+
+For MongoDB (Optional): If you prefer to use MongoDB, configure the db.js file to connect to your MongoDB instance, and modify the models accordingly.
+
+6. Start the server: node app.js By default, the server will run on http://localhost:5000.
 
 ## API Endpoints
 
-- POST /transactions: Add a new transaction.
-- GET /transactions: Get all transactions.
-- GET /transactions/ : Get a transaction by ID.
-- PUT /transactions/ : Update a transaction by ID.
-- DELETE /transactions/ : Delete a transaction by ID.
-- GET /transactions/summary: Get a summary of all transactions.
+Authentication Register a new user URL: POST /api/register Description: Registers a new user. Request Body: json Copy code { "name": "John Doe", "email": "john@example.com", "password": "password123" } Response: json Copy code { "message": "User registered successfully" }
 
-## Example Requests:
+## Login
 
-Add a Transaction POST /transactions
+URL: POST /api/login Description: Authenticates a user and provides a JWT. Request Body: json Copy code { "email": "john@example.com", "password": "password123" } Response: json Copy code { "token": "jwt_token_here" }
 
-Request body: { "type": "income", "category": "Salary", "amount": 5000, "date": "2024-10-22", "description": "October Salary" }
+## Transactions
 
-Get All Transactions GET /transactions
+Create a transaction URL: POST /api/transactions Headers: Authorization: Bearer <JWT_TOKEN> Description: Creates a new income or expense transaction. Request Body: json Copy code { "type": "income", "category": "Salary", "amount": 1000, "date": "2024-10-01", "description": "Monthly salary" } Response: json Copy code { "message": "Transaction created successfully" }
 
-Response:
+## Get all transactions (with pagination)
 
-[ { "id": 1, "type": "income", "category": "Salary", "amount": 5000, "date": "2024-10-22", "description": "October Salary" }, ... ]
+URL: GET /api/transactions?page=1&limit=10 Headers: Authorization: Bearer <JWT_TOKEN> Description: Fetches all transactions for the authenticated user with pagination. Query Parameters: page: Page number (default: 1). limit: Number of transactions per page (default: 10). Response: json Copy code { "transactions": [ { "id": 1, "type": "income", "category": "Salary", "amount": 1000, "date": "2024-10-01", "description": "Monthly salary" } ], "currentPage": 1, "totalPages": 2, "totalItems": 15 }
 
-Get Summary GET /transactions/summary
+## Get transaction by ID
 
-Response:
+URL: GET /api/transactions/:id Headers: Authorization: Bearer <JWT_TOKEN> Description: Fetches a specific transaction by ID. Response: json Copy code { "id": 1, "type": "income", "category": "Salary", "amount": 1000, "date": "2024-10-01", "description": "Monthly salary" }
 
-{ "total_income": 5000, "total_expense": 0, "balance": 5000 }
+## Delete a transaction
 
----
+URL: DELETE /api/transactions/:id Headers: Authorization: Bearer <JWT_TOKEN> Description: Deletes a specific transaction by ID. Response: json Copy code { "message": "Transaction deleted successfully" }
 
-#### **2.5. `.gitignore`** (To exclude unnecessary files from Git)
+## Summary
 
-```gitignore
-/node_modules
-/expenses.db
+Get summary of income and expenses URL: GET /api/summary Headers: Authorization: Bearer <JWT_TOKEN> Description: Retrieves the total income, total expenses, and balance for the user. Response: json Copy code { "totalIncome": 2000, "totalExpenses": 500, "balance": 1500 }
 
-## Final Steps:
-1. Create the project folder and files as described.
-2. Copy and paste the code provided into the respective files.
-3. Run the server with npm start and test it using Postman or any other API client.
-This project structure and code will give you a functioning Personal Expense Tracker API using Node.js, Express.js, and SQLite.
+## Report
+
+Get monthly spending report by category URL: GET /api/report/monthly?month=9&year=2024 Headers: Authorization: Bearer <JWT_TOKEN> Description: Generates a monthly spending report grouped by category. Query Parameters: month: Month (1-12). year: Year (e.g., 2024). Response: json Copy code { "month": "9", "year": "2024", "report": [ { "category": "Groceries", "totalSpent": 200 }, { "category": "Transport", "totalSpent": 100 } ] }
+
+## Postman API Testing
+
+## Here are some screenshots of the Postman API calls:
+
+1.User Registration:
+
+2.User Login:
+
+3.Create Transaction:
+
+4.Get Transactions (Pagination):
+
+5.Get Summary:
+
+## License:
+
+This project is licensed under the MIT License.
+
+```
+
 ```
